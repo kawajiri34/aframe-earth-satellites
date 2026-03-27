@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A-Frame Earth Satellites</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <a-scene>
+      <!-- 照明 -->
+      <a-light type="ambient" color="#333"></a-light>
+      <a-light type="directional" position="5 3 1" intensity="1.2"></a-light>
+
+      <!-- カメラ -->
+      <a-entity id="camera-rig" movement-controls="fly: true; speed: 0.3">
+        <a-entity
+          camera
+          look-controls
+          position="0 0 30"
+        >
+          <a-text
+            id="info-text"
+            value=""
+            position="0 -0.5 -1"
+            align="center"
+            width="2"
+            color="#0ff"
+            visible="false"
+          ></a-text>
+        </a-entity>
+      </a-entity>
+
+      <!-- 地球システム -->
+      <a-entity id="earth-system">
+        <!-- 地球 -->
+        <a-sphere
+          id="earth"
+          earth-rotation
+          radius="10"
+          segments-width="64"
+          segments-height="64"
+          material="src: url(textures/earth.jpg)"
+        ></a-sphere>
+
+        <!-- 衛星コンテナ -->
+        <a-entity id="satellites"></a-entity>
+      </a-entity>
+
+      <!-- 軌道線 -->
+      <a-entity id="orbit-lines"></a-entity>
+
+      <!-- 星空 -->
+      <a-sky src="textures/starfield.jpg" radius="500"></a-sky>
+    </a-scene>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
