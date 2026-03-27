@@ -30,7 +30,9 @@ AFRAME.registerComponent("orbit-line", {
     const THREE = (window as any).THREE;
     const points: any[] = [];
     const baseDate = getSimDate();
-    const periodMin = 92;
+    // TLE の mean motion (rev/day) から軌道周期を算出
+    const meanMotion = this.satrec.no * (1440 / (2 * Math.PI)); // rad/min → rev/day
+    const periodMin = meanMotion > 0 ? 1440 / meanMotion : 92;
 
     for (let i = 0; i <= this.data.segments; i++) {
       const t = new Date(

@@ -2,7 +2,7 @@ import "./components/earth-rotation";
 import "./components/satellite";
 import "./components/orbit-line";
 import "./components/info-panel";
-import { satellites } from "./data/tle";
+import { satellites, groups } from "./data/tle";
 import { getTimeScale, setTimeScale } from "./lib/sim-clock";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -17,19 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const sat of satellites) {
       // 衛星本体
       const el = document.createElement("a-entity");
-
-      // TLE を data 属性で渡す（A-Frame の属性パーサーを回避）
       el.dataset.tle1 = sat.tle1;
       el.dataset.tle2 = sat.tle2;
+      el.dataset.group = sat.group;
 
       if (sat.model) {
         el.setAttribute("gltf-model", `url(${sat.model})`);
         el.setAttribute("scale", sat.scale ?? "0.01 0.01 0.01");
       }
 
-      // 視認用マーカー（モデル有無に関わらず常に表示）
       const marker = document.createElement("a-sphere");
-      marker.setAttribute("radius", "0.15");
+      marker.setAttribute("radius", sat.model ? "0.15" : "0.5");
       marker.setAttribute("color", sat.color);
       marker.setAttribute("material", "shader: flat");
       el.appendChild(marker);
@@ -43,18 +41,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const orbitEl = document.createElement("a-entity");
       orbitEl.dataset.tle1 = sat.tle1;
       orbitEl.dataset.tle2 = sat.tle2;
-      orbitEl.setAttribute(
-        "orbit-line",
-        `color: ${sat.color}`
-      );
+      orbitEl.dataset.group = sat.group;
+      orbitEl.setAttribute("orbit-line", `color: ${sat.color}`);
       orbitLines.appendChild(orbitEl);
     }
   });
 
-  // 速度コントロール UI
   setupSpeedControls();
+  setupGroupToggles();
 });
 
+// --- 速度コントロール ---
 function setupSpeedControls(): void {
   const panel = document.createElement("div");
   panel.id = "speed-controls";
@@ -92,5 +89,36 @@ function setupSpeedControls(): void {
   document.querySelector("#speed-reset")!.addEventListener("click", () => {
     setTimeScale(1);
     updateLabel();
+  });
+}
+
+// --- 衛星グループ表示トグル ---
+function setupGroupToggles(): void {
+  const panel = document.createElement("div");
+  panel.id = "group-toggles";
+
+  for (const group of groups) {
+    const btn = document.createElement("button");
+    btn.dataset.groupId = group.id;
+    btn.classList.add("group-btn", "active");
+    btn.style.borderColor = group.color;
+    btn.style.color = group.color;
+    btn.textContent = group.label;
+
+    btn.addEventListener("click", () => {
+      const isActive = btn.classList.toggle("active");
+      toggleGroup(group.id, isActive);
+    });
+
+    panel.appendChild(btn);
+  }
+
+  document.body.appendChild(panel);
+}
+
+function toggleGroup(groupId: string, visible: boolean): void {
+  const els = document.querySelectorAll(`[data-group="${groupId}"]`);
+  els.forEach((el) => {
+    (el as any).object3D.visible = visible;
   });
 }
